@@ -5,11 +5,13 @@ import { MODELS, tryIt } from "@copybook/example-acme/ai-gateway";
 import { useId, useState } from "react";
 
 import { CodeVariants } from "@/components/copybook/code-variants";
+import type { CodeVariant } from "@/components/copybook/code-variants";
 import { Label } from "@/components/ui/label";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
+import { tryItPrompt } from "@/content/definitions/try-it";
 
 type Model = (typeof MODELS)[number];
 
@@ -25,20 +27,25 @@ export const TryItDemo = () => {
   const scenarioId = useId();
   const [model, setModel] = useState<Model>("claude-haiku-5-5");
   const [scenario, setScenario] = useState(scenarios[0]?.value ?? "");
-  const items = listVariants(tryIt)
-    .filter((variant) => variant.when.scenario === scenario)
-    .map((variant) => ({
-      key: variant.key,
-      label: frameworkLabel(variant.when.framework),
-      rendered: render(
-        tryIt,
-        {
-          endpoint: "https://br-fancy-king-a1b2c3d4.us-east-2.acme.dev",
-          model,
-        },
-        { variant: variant.key }
-      ),
-    }));
+  const values = {
+    endpoint: "https://br-fancy-king-a1b2c3d4.us-east-2.acme.dev",
+    model,
+  };
+  const items: CodeVariant[] = [
+    {
+      key: "prompt",
+      kind: "prompt",
+      label: "Prompt",
+      rendered: render(tryItPrompt, values),
+    },
+    ...listVariants(tryIt)
+      .filter((variant) => variant.when.scenario === scenario)
+      .map((variant) => ({
+        key: variant.key,
+        label: frameworkLabel(variant.when.framework),
+        rendered: render(tryIt, values, { variant: variant.key }),
+      })),
+  ];
 
   return (
     <div className="not-prose flex flex-col gap-4">
@@ -72,7 +79,13 @@ export const TryItDemo = () => {
           </NativeSelect>
         </div>
       </div>
-      <CodeVariants items={items} key={scenario} />
+      <CodeVariants
+        defaultKey={items[1]?.key}
+        defaultView="rendered"
+        items={items}
+        key={scenario}
+        viewToggle
+      />
     </div>
   );
 };

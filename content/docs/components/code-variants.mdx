@@ -1,8 +1,8 @@
 ---
 title: Code Variants
-description: One snippet in several frameworks or setups, as tabs.
+description: One snippet in several frameworks or setups, as tabs, with an optional agent prompt tab.
 metaTitle: Code Variants component
-metaDescription: A shadcn component that shows one snippet in several frameworks or setups as tabs, like a Connect dialog with a tab for each service and a choice of setup.
+metaDescription: A shadcn component that shows one snippet in several frameworks or setups as tabs, like a Connect dialog, with an optional tab for a coding-agent prompt.
 ---
 
 ## Connect dialog
@@ -13,7 +13,7 @@ The Acme "Connect to your branch" dialog: a tab per service, each with an `.env`
 
 ## Try it out
 
-The AI Gateway model page. The model is a param, and the scenario and framework are dimensions.
+The AI Gateway model page. The model is a param, and the scenario and framework are dimensions. The first tab is a prompt for a coding agent; the rest are the snippet variants.
 
 <TryItDemo />
 
@@ -23,31 +23,50 @@ The AI Gateway model page. The model is a param, and the scenario and framework 
 
 ## Usage
 
-Render each variant you show on the server, then pass them in:
+Render each variant you show on the server, then pass them in. Mix in a prompt with `kind: "prompt"` — the same pattern as [Command Tabs](/docs/components/command-tabs) with pnpm, npm, yarn, bun, and a prompt:
 
 ```tsx
 import { listVariants, render } from "@copybook/core";
 
 import { CodeVariants } from "@/components/copybook/code-variants";
 import { tryIt } from "@/content/ai-gateway";
+import { tryItPrompt } from "@/content/try-it";
 
 export const TryIt = ({ endpoint, model }) => (
   <CodeVariants
-    items={listVariants(tryIt)
-      .filter((variant) => variant.when.scenario === "chat")
-      .map((variant) => ({
-        key: variant.key,
-        label: variant.label,
-        rendered: render(tryIt, { endpoint, model }, { variant: variant.key }),
-      }))}
+    defaultView="rendered"
+    items={[
+      {
+        key: "prompt",
+        kind: "prompt",
+        label: "Prompt",
+        rendered: render(tryItPrompt, { endpoint, model }),
+      },
+      ...listVariants(tryIt)
+        .filter((variant) => variant.when.scenario === "chat")
+        .map((variant) => ({
+          key: variant.key,
+          label: variant.label,
+          rendered: render(
+            tryIt,
+            { endpoint, model },
+            { variant: variant.key }
+          ),
+        })),
+    ]}
+    viewToggle
   />
 );
 ```
+
+Prompt tabs can format their Markdown, like [Agent Prompt's rendered view](/docs/components/agent-prompt#rendered-view). Set `defaultView="rendered"`, and add `viewToggle` for a Preview / Markdown switch. The copy button still copies the Markdown.
 
 ## Props
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `items` | `{ key, label, rendered }[]` | One tab each, in order. |
+| `items` | `{ key, label, rendered, kind? }[]` | One tab each, in order. `kind: "prompt"` wraps long lines and adds an agent icon. |
 | `defaultKey` | `string` | The tab that starts selected. |
+| `defaultView` | `"source" \| "rendered"` | The view prompt tabs show first. Defaults to `"source"`. |
+| `viewToggle` | `boolean` | Shows a Preview / Markdown switch on prompt tabs. |
 | `onCopy` | `(event: CopyEvent) => void` | Called with `{ id, variant, text }` after a copy. |

@@ -155,7 +155,7 @@
       "name": "code-variants",
       "type": "registry:component",
       "title": "Code Variants",
-      "description": "One snippet in several frameworks or setups, as tabs with a copy button.",
+      "description": "One snippet in several frameworks or setups, as tabs with a copy button, and an optional agent prompt tab.",
       "dependencies": ["@copybook/core@^0.5.0"],
       "registryDependencies": ["button", "input", "label", "tabs", "utils"],
       "files": [

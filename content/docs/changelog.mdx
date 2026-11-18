@@ -14,6 +14,7 @@ Released November 13, 2026.
 
 **New in the components:**
 
+- Code Variants takes a `kind: "prompt"` item, so a tabbed snippet can include a coding-agent prompt next to frameworks or package managers. `defaultView="rendered"` and `viewToggle` work on that tab the same way they do on Agent Prompt and Command Tabs.
 - Agent Prompt takes `openIn={["cursor", "claude-code", "codex"]}` to add links that open the prompt in those agents, pre-filled and unsent, and `onOpen` for analytics. A prompt too long for an agent's link gets a note to copy it instead, and a prompt with a real secret gets no links. The new `open-in-agent` registry item draws the links.
 - Agent Prompt takes `editParams={["orgId"]}` to show an input for each named param. What readers type updates the prompt, the copied text, and the `openIn` links, and secrets get a password input. The new `param-inputs` registry item draws the inputs.
 
